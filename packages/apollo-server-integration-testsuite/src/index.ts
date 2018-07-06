@@ -462,6 +462,24 @@ export default (createApp: CreateAppFunc, destroyApp?: DestroyAppFunc) => {
         });
       });
 
+      it('can handle a request with variables in fragments', async () => {
+        app = await createApp();
+        const expected = {
+          testArgument: 'hello world',
+        };
+        const req = request(app)
+          .post('/graphql')
+          .send({
+            query:
+              'query test($echo: String){ ...myFragment } fragment myFragment on Query { testArgument(echo: $echo) }',
+            variables: { echo: 'world' },
+          });
+        return req.then(res => {
+          expect(res.status).to.equal(200);
+          expect(res.body.data).to.deep.equal(expected);
+        });
+      });
+
       it('can handle a request with variables as string', async () => {
         app = await createApp();
         const expected = {
